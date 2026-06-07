@@ -1,0 +1,51 @@
+# QuicFS server configuration.
+# Copy to /etc/quicfs/server.toml and edit, then:
+#   systemctl enable --now quicfs-server
+
+[server]
+# UDP address:port to listen on. Pick a port you can open in the firewall.
+listen = "0.0.0.0:9001"
+# The directory tree to export. Everything the client sees is rooted here.
+export_root = "/srv/quicfs"
+log_level = "info"            # error | warn | info | debug | trace
+
+[tls]
+# The server's self-signed identity. If these files don't exist they are
+# generated automatically on first start (no CA needed). Clients pin the
+# resulting key fingerprint on first connect (TOFU, like ssh host keys).
+cert = "/var/lib/quicfs/server.crt"
+key  = "/var/lib/quicfs/server.key"
+
+[auth]
+# Authorized client keys (like ~/.ssh/authorized_keys). Add client fingerprints
+# with:  quicfs-server authorize SHA256:....
+authorized_keys = "/etc/quicfs/authorized_keys"
+# Set true ONLY on a trusted/single-user network to accept any client key when
+# authorized_keys is empty. Leave false in production.
+allow_any_client = false
+
+[quic]
+# Connection migration: keep a client's session alive when its IP changes
+# (Wi-Fi <-> LTE, roaming). This is QuicFS's headline advantage over TCP-based mounts.
+migration = true
+keep_alive_interval_ms = 15000
+idle_timeout_ms        = 300000
+max_concurrent_bidi_streams = 256
+
+[limits]
+max_open_handles = 8192
+rpc_timeout_ms   = 30000
+
+[durability]
+# Crash durability vs throughput. Both default to false (throughput). Data that
+# a client wrote has reached the server's page cache; these force it to stable
+# storage so a server-host power loss cannot lose acknowledged work. Enable on
+# crash-sensitive exports; expect slower writes / metadata ops in return.
+#
+# fsync each file to disk when its handle is released (close).
+sync_on_close = false
+# fsync the parent directory after a namespace mutation (create, rename, unlink,
+# mkdir, rmdir, symlink, link) so the directory entry survives a crash. This is
+# the server half of the crash-safe write-tmp, fsync, rename replace idiom (the
+# client makes the file's data durable with fsync; this makes the rename durable).
+sync_metadata = false

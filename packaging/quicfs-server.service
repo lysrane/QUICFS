@@ -1,0 +1,35 @@
+[Unit]
+Description=QuicFS server (QUIC remote filesystem)
+Documentation=file:///usr/share/doc/quicfs-server/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/quicfs-server --config /etc/quicfs/server.toml
+Restart=on-failure
+RestartSec=2
+
+# Run as an unprivileged service account (created by install.sh / postinst).
+User=quicfs
+Group=quicfs
+
+# State (server key) lives in /var/lib/quicfs; config in /etc/quicfs.
+StateDirectory=quicfs
+ConfigurationDirectory=quicfs
+LimitNOFILE=65536
+
+# Hardening: the server only needs to read its config/key and serve the export.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+# Allow writing to the export root and its own state dir. Adjust the export
+# path to match `server.export_root` in /etc/quicfs/server.toml.
+ReadWritePaths=/srv/quicfs /var/lib/quicfs
+
+[Install]
+WantedBy=multi-user.target

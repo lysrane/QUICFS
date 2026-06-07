@@ -1,0 +1,39 @@
+# Rust build artifacts
+/target
+**/*.rs.bk
+
+# Local QuicFS runtime state (keys, known_hosts) should never be committed
+*.crt
+*.key
+*.pem
+known_hosts
+authorized_keys
+
+# Local AI/dev assistant config and personal directives (do not publish)
+CLAUDE.md
+.claude/
+
+# Internal session/handoff/risk docs - kept local, not part of the public release
+STATUS.md
+HANDOFF.md
+DATA-INTEGRITY.md
+
+# Internal planning / design working docs - kept local, not public
+ROADMAP.md
+DESIGN-reconnect-replay.md
+
+# Editor / OS
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Keep the packaged example config, ignore real configs
+/etc/
+server.toml
+
+# cargo-fuzz
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+fuzz/Cargo.lock

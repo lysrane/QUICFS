@@ -1,0 +1,62 @@
+[package]
+name = "quicfs-server"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "QuicFS server daemon: export a directory tree as a remote filesystem over QUIC (UDP + TLS 1.3)"
+
+[package.metadata.deb]
+maintainer = "LYSRANE <github.chomp676@passinbox.com>"
+copyright = "2026, LYSRANE"
+section = "net"
+priority = "optional"
+extended-description = """\
+QuicFS serves a local directory tree to QuicFS clients over QUIC (UDP + TLS 1.3).
+Trust is TOFU key pinning (like ssh known_hosts / authorized_keys); there is no CA.
+Clients survive IP changes (Wi-Fi to LTE) without remounting thanks to QUIC \
+connection migration."""
+# Source paths are relative to THIS manifest dir (server/), so shared assets at
+# the workspace root must be reached with ../ . `target/` is special-cased by
+# cargo-deb to the workspace target dir, so the binary path needs no ../ .
+assets = [
+    ["target/release/quicfs-server", "usr/bin/", "755"],
+    ["../packaging/quicfs-server.service", "lib/systemd/system/", "644"],
+    ["../packaging/server.toml.example", "etc/quicfs/server.toml.example", "644"],
+    ["../README.md", "usr/share/doc/quicfs-server/README.md", "644"],
+]
+conf-files = ["/etc/quicfs/server.toml.example"]
+# postinst creates the quicfs user, /var/lib/quicfs, /etc/quicfs/server.toml
+# (from the example), and authorized_keys; without it the service cannot start.
+maintainer-scripts = "../packaging/debian/"
+
+[lib]
+name = "quicfs_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "quicfs-server"
+path = "src/main.rs"
+
+[dependencies]
+quicfs-common = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+quinn = { workspace = true }
+rustls = { workspace = true }
+rustls-pemfile = { workspace = true }
+rmp-serde = { workspace = true }
+uuid = { workspace = true }
+clap = { workspace = true }
+toml = { workspace = true }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"
+
+[dev-dependencies]
+tempfile = { workspace = true }
+proptest = "1"

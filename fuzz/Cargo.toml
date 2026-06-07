@@ -1,0 +1,49 @@
+# Fuzzing crate for QuicFS. Its own workspace (the empty [workspace] below) so it
+# is not pulled into the root workspace build. Run with the nightly toolchain:
+#   cargo +nightly fuzz run resolve
+#   cargo +nightly fuzz run decode_requests
+[package]
+name = "quicfs-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+quicfs-common = { path = "../common" }
+quicfs-server = { path = "../server" }
+tempfile = "3"
+libc = "0.2"
+
+[[bin]]
+name = "resolve"
+path = "fuzz_targets/resolve.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "decode_requests"
+path = "fuzz_targets/decode_requests.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "open_confined"
+path = "fuzz_targets/open_confined.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "parse_fingerprint"
+path = "fuzz_targets/parse_fingerprint.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]

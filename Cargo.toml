@@ -1,0 +1,38 @@
+[workspace]
+members = [
+    "common",
+    "server",
+    "client",
+    "test-harness",
+]
+resolver = "2"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.80"
+license = "MIT"
+repository = "https://github.com/lysrane/QUICFS"
+
+[workspace.dependencies]
+anyhow = "1"
+serde = { version = "1", features = ["derive"] }
+serde_bytes = "0.11"
+tokio = { version = "1", features = ["full"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+quinn = "0.11"
+rustls = { version = "0.23", features = ["ring"] }
+rustls-pemfile = "2"
+rcgen = { version = "0.14", features = ["x509-parser", "pem"] }
+rmp-serde = "1"
+uuid = { version = "1", features = ["v4", "serde"] }
+clap = { version = "4", features = ["derive"] }
+toml = "0.8"
+lru = "0.12"
+tempfile = "3"
+sha2 = "0.10"
+base64 = "0.22"
+x509-parser = "0.18"
+dirs = "5"
+quicfs-common = { path = "common" }

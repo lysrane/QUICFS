@@ -1,0 +1,41 @@
+#!/bin/sh
+# QuicFS server .deb post-install: create the service account, state/config
+# directories, a starting config, and the authorized_keys file. Without this
+# the systemd unit (User=quicfs, --config /etc/quicfs/server.toml) cannot start.
+set -e
+
+case "$1" in
+    configure)
+        # Service account (no home, no shell).
+        if ! id quicfs >/dev/null 2>&1; then
+            useradd --system --no-create-home --shell /usr/sbin/nologin quicfs || true
+        fi
+
+        # State dir (server key) and config dir.
+        install -d -o quicfs -g quicfs -m 0750 /var/lib/quicfs
+        install -d -m 0755 /etc/quicfs
+        # Default export root.
+        install -d -o quicfs -g quicfs -m 0755 /srv/quicfs
+
+        # Real config from the shipped example (never clobber an existing one).
+        if [ ! -f /etc/quicfs/server.toml ] && [ -f /etc/quicfs/server.toml.example ]; then
+            cp /etc/quicfs/server.toml.example /etc/quicfs/server.toml
+        fi
+
+        # authorized_keys must be readable by the quicfs service user.
+        if [ ! -f /etc/quicfs/authorized_keys ]; then
+            touch /etc/quicfs/authorized_keys
+        fi
+        chown quicfs:quicfs /etc/quicfs/authorized_keys || true
+        chmod 0644 /etc/quicfs/authorized_keys || true
+
+        if [ -d /run/systemd/system ]; then
+            systemctl daemon-reload || true
+            echo "QuicFS server installed. Edit /etc/quicfs/server.toml, then:"
+            echo "  systemctl enable --now quicfs-server"
+            echo "Authorize a client key with: quicfs-server authorize SHA256:... --config /etc/quicfs/server.toml"
+        fi
+        ;;
+esac
+
+exit 0

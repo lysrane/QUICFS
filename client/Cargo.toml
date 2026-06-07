@@ -1,0 +1,55 @@
+[package]
+name = "quicfs-client"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "QuicFS client: mount a remote directory over QUIC (quicfs user@host:/path /mnt)"
+
+[package.metadata.deb]
+name = "quicfs"
+maintainer = "LYSRANE <github.chomp676@passinbox.com>"
+copyright = "2026, LYSRANE"
+section = "net"
+priority = "optional"
+depends = "$auto, fuse3"
+extended-description = """\
+QuicFS mounts a remote directory tree as a local FUSE filesystem over QUIC,
+as simply as `quicfs user@host:/path /mnt`. Server identity is verified by
+TOFU key pinning (ssh known_hosts UX). Survives client IP changes without
+remounting."""
+# Source paths are relative to THIS manifest dir (client/); the shared README.md
+# lives at the workspace root, hence ../ . `target/` is special-cased by cargo-deb.
+assets = [
+    ["target/release/quicfs", "usr/bin/", "755"],
+    ["../README.md", "usr/share/doc/quicfs/README.md", "644"],
+]
+
+[lib]
+name = "quicfs_client"
+path = "src/lib.rs"
+
+[[bin]]
+name = "quicfs"
+path = "src/main.rs"
+
+[dependencies]
+quicfs-common = { workspace = true }
+anyhow = { workspace = true }
+serde = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+quinn = { workspace = true }
+rustls = { workspace = true }
+rustls-pemfile = { workspace = true }
+rmp-serde = { workspace = true }
+uuid = { workspace = true }
+clap = { workspace = true }
+toml = { workspace = true }
+lru = { workspace = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+fuser = "0.14"
+libc = "0.2"
