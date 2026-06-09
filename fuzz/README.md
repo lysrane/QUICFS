@@ -42,11 +42,3 @@ checked on every `cargo test`, not only under nightly fuzzing.
 First run: all four targets clean - no crashes, panics, OOM, hangs, or jail
 escapes. ~25M execs on resolve, ~1.9M on decode_requests (11.9k coverage edges),
 ~6.7M on open_confined, ~20M on parse_fingerprint.
-
-## Not yet fuzzed (deeper follow-ups)
-
-- The multi-frame Write-RPC reassembly state machine (`handle_write`): stateful and
-  async, needs a mock `RecvStream` or the frame-sequence logic factored out.
-- `read_frame` length handling / the eager per-frame allocation (async reader).
-- Client-side response parsing (only matters when hardening against a hostile
-  server, which the pin-the-server trust model makes low priority).
