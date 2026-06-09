@@ -41,8 +41,7 @@ checked on every `cargo test`, not only under nightly fuzzing.
 
 First run: all four targets clean - no crashes, panics, OOM, hangs, or jail
 escapes. ~25M execs on resolve, ~1.9M on decode_requests (11.9k coverage edges),
-~6.7M on open_confined, ~20M on parse_fingerprint. Corpora and crash artifacts are
-gitignored.
+~6.7M on open_confined, ~20M on parse_fingerprint.
 
 ## Not yet fuzzed (deeper follow-ups)
 
